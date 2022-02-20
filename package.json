@@ -5,6 +5,10 @@
   "scripts": {},
   "private": true,
   "dependencies": {
+    "@types/debug": "^4.1.7",
+    "@types/js-yaml": "^4.0.5",
+    "debug": "^4.3.3",
+    "js-yaml": "^4.1.0",
     "tslib": "^2.0.0"
   },
   "devDependencies": {
