@@ -1,6 +1,6 @@
 # ESLint Doctor
 
-Static analysis for your static analysis.
+Analyze your ESLint configuration.
 
 ## Installation
 

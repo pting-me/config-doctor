@@ -1,5 +1,5 @@
-# Code Doctors
+# Confology
 
-Tools that analyze your repo setup
+Tools for analyzing your repo configuration
 
 [ESLint Doctor](packages/eslint-doctor/)
