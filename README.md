@@ -1,3 +1,5 @@
-# ESLint Doctor
+# Code Doctors
 
-The main `eslint-doctor` package is located at [`packages/eslintdoctor`](./packages/eslint-doctor/).
+Tools that analyze your repo setup
+
+[ESLint Doctor](packages/eslint-doctor/)
