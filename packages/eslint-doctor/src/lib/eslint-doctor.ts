@@ -27,7 +27,7 @@ const checkExtensions = (config: Linter.Config) => {
     const matches = extension.match(/^eslint-config-(.+)/);
     if (matches && matches[1]) {
       console.log(
-        `Extension "${matches[0]}" can be renamed to "${matches[1]}"`,
+        `Extension "${matches[0]}" can be renamed to "${matches[1]}"`
       );
       // TODO: add autofix
       return matches[1];
@@ -61,9 +61,7 @@ const checkExtensions = (config: Linter.Config) => {
     const prettierIsLast =
       parsedExtensions[parsedExtensions.length - 1] === 'prettier';
     if (!prettierIsLast) {
-      console.log(
-        'The Prettier extension should always be placed last.\n',
-      );
+      console.log('The Prettier extension should always be placed last.\n');
       // TODO: add autofix
     }
   }
@@ -95,12 +93,11 @@ const checkExtensions = (config: Linter.Config) => {
       // if recommended comes after current extension
       if (recommendedIndex > parsedExtensions.indexOf(extension)) {
         console.log(
-          `'${extension}' is supposed to come after 'eslint:recommended'`,
+          `'${extension}' is supposed to come after 'eslint:recommended'`
         );
       }
     });
   }
-
 };
 
 const main = async () => {
