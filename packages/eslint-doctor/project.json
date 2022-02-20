@@ -1,0 +1,34 @@
+{
+  "root": "packages/eslint-doctor",
+  "sourceRoot": "packages/eslint-doctor/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/eslint-doctor/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/packages/eslint-doctor"],
+      "options": {
+        "jestConfig": "packages/eslint-doctor/jest.config.js",
+        "passWithNoTests": true
+      }
+    },
+    "build": {
+      "executor": "@nrwl/node:package",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/eslint-doctor",
+        "tsConfig": "packages/eslint-doctor/tsconfig.lib.json",
+        "packageJson": "packages/eslint-doctor/package.json",
+        "main": "packages/eslint-doctor/src/index.ts",
+        "assets": ["packages/eslint-doctor/*.md"]
+      }
+    }
+  },
+  "tags": []
+}
