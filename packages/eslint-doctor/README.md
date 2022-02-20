@@ -1,7 +1,11 @@
-# eslint-doctor
+# ESLint Doctor
 
-This library was generated with [Nx](https://nx.dev).
+Static analysis for your static analysis.
 
-## Running unit tests
+## Installation
 
-Run `nx test eslint-doctor` to execute the unit tests via [Jest](https://jestjs.io).
+`npm i -g eslint-doctor`
+
+## Usage
+
+`eslint-doctor`
