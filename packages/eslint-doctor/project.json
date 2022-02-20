@@ -34,6 +34,12 @@
       "options": {
         "command": "npm link dist/packages/eslint-doctor"
       }
+    },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "command": "npm publish dist/packages/eslint-doctor"
+      }
     }
   },
   "tags": []
