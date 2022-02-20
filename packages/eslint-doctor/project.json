@@ -28,6 +28,12 @@
         "main": "packages/eslint-doctor/src/index.ts",
         "assets": ["packages/eslint-doctor/*.md"]
       }
+    },
+    "link": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "command": "npm link dist/packages/eslint-doctor"
+      }
     }
   },
   "tags": []
