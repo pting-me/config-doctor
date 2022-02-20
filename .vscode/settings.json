@@ -1,0 +1,6 @@
+{
+  "eslint.workingDirectories": [
+    { "directory": "./packages/eslint-doctor" },
+    { "directory": "./" }
+  ]
+}

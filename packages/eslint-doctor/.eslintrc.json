@@ -7,7 +7,26 @@
       "rules": {}
     },
     {
-      "files": ["*.ts", "*.tsx"],
+      "files": ["**/*.ts"],
+      "excludedFiles": ["**/*.spec.ts", "**/*.test.ts"],
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "ecmaVersion": 2020,
+        "sourceType": "module",
+        "tsconfigRootDir": "./",
+        "project": ["./tsconfig.lib.json"]
+      },
+      "rules": {}
+    },
+    {
+      "files": ["**/*.spec.ts", "**/*.test.ts"],
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "ecmaVersion": 2020,
+        "sourceType": "module",
+        "tsconfigRootDir": "./",
+        "project": ["./tsconfig.spec.json"]
+      },
       "rules": {}
     },
     {
