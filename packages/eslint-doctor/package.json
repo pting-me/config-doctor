@@ -1,5 +1,29 @@
 {
   "name": "eslint-doctor",
-  "version": "0.0.1",
-  "bin": "src/index.js"
+  "version": "0.0.0",
+  "bin": {
+    "eslint-doctor": "src/index.js"
+  },
+  "description": "Static analysis for your static analysis.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "npx jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/philting/eslint-doctor.git"
+  },
+  "keywords": [
+    "lint",
+    "cli",
+    "ecmascript",
+    "javascript",
+    "typescript"
+  ],
+  "author": "Phil Ting",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/philting/eslint-doctor/issues"
+  },
+  "homepage": "https://github.com/philting/eslint-doctor#readme"
 }
