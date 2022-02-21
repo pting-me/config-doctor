@@ -1,3 +1,4 @@
 #!/usr/bin/env node
 
-export * from './lib/eslint-doctor';
+import { main } from './lib/eslint-doctor';
+main().catch(console.error);

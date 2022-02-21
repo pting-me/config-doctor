@@ -29,10 +29,16 @@
         "assets": ["packages/eslint-doctor/*.md"]
       }
     },
-    "link": {
+    "install": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
-        "command": "npm link dist/packages/eslint-doctor"
+        "command": "npm uninstall -g eslint-doctor && npm install -g dist/packages/eslint-doctor"
+      }
+    },
+    "build:install": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "command": "nx build eslint-doctor && nx install eslint-doctor"
       }
     },
     "publish": {

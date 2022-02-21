@@ -13,7 +13,14 @@
 //------------------------------------------------------------------------------
 
 import { constants } from 'fs';
-import { access, readFile } from 'fs/promises';
+import {
+  access,
+  copyFile,
+  mkdtemp,
+  readFile,
+  realpath,
+  rm,
+} from 'fs/promises';
 import path from 'path';
 import importFresh from 'import-fresh';
 import stripComments from 'strip-json-comments';
@@ -135,10 +142,40 @@ async function loadLegacyConfigFile(filePath: string) {
  * @returns {ConfigData} The configuration object from the file.
  * @throws {Error} If the file cannot be read.
  */
-function loadJSConfigFile(filePath: string) {
+async function loadJSConfigFile(filePath: string) {
   debug(`Loading JS config file: ${filePath}`);
+
   try {
-    return importFresh<Linter.Config>(filePath);
+    /**
+     * We have to import JS using node. We can't use the original
+     * logic as if we were loading a YAML or JSON file because:
+     * 
+     * 1. 'import' interprets relative paths relative to the binary file
+     *   location, not the location we execute the code.
+     *   We have to use absolute paths.
+     * 2. Modules are dependent on the package.json config. Copying the file
+     *   seems to bypass potential errors. Not entirely sure how the mechanism
+     *   works. May be worth revisiting if we run into more loading errors.
+     */
+
+    // Create temp files
+    const fileDir = filePath.replace(/(.+)\/([^/]+)/, '$1/');
+    const fileName = filePath.replace(/(.+)\/([^/]+)/, '$2');
+    const tempFileDir = await mkdtemp(fileDir + '.eslint-doctor-');
+    const tempFilePath = `${tempFileDir}/${fileName}`;
+    await copyFile(filePath, tempFilePath);
+    debug(`Copied file: ${filePath} -> ${tempFilePath}`);
+
+    // Get absolute path
+    const tempReal = await realpath(tempFilePath);
+
+    // Import as module from absolute path
+    const config = importFresh<Linter.Config>(tempReal);
+
+    // Delete temp files after use
+    await rm(tempFileDir, { recursive: true, force: true });
+
+    return config;
   } catch (error) {
     const e = error as Error;
     debug(`Error reading JavaScript file: ${filePath}`);
@@ -235,7 +272,7 @@ async function loadConfig(fileDirectory = './') {
     try {
       await access(fileDirectory, constants.F_OK);
       return await loadConfigFile(fileDirectory + filename);
-    } catch {
+    } catch (error) {
       /**
        * Ideally we shouldn't have to call access (per Node doc).
        *
@@ -243,8 +280,13 @@ async function loadConfig(fileDirectory = './') {
        * to differentiate between file not existing, and file
        * parsing errors.
        */
+      const e = error as Error;
+      debug(e.message);
     }
   }
+  /**
+   * Only throw after every file fails.
+   */
   throw new Error('Could not find any ESLint config');
 }
 
