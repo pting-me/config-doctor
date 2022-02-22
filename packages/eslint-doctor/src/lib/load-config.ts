@@ -161,19 +161,20 @@ async function loadJSConfigFile(filePath: string) {
     // Create temp files
     const fileDir = filePath.replace(/(.+)\/([^/]+)/, '$1/');
     const fileName = filePath.replace(/(.+)\/([^/]+)/, '$2');
-    const tempFileDir = await mkdtemp(fileDir + '.eslint-doctor-');
+    const tempFileDir = await mkdtemp(fileDir + '.temp/eslint-doctor-');
     const tempFilePath = `${tempFileDir}/${fileName}`;
     await copyFile(filePath, tempFilePath);
     debug(`Copied file: ${filePath} -> ${tempFilePath}`);
 
     // Get absolute path
-    const tempReal = await realpath(tempFilePath);
+    const realTempFileDir = await realpath(tempFileDir);
+    const realTempFilePath = await realpath(tempFilePath);
 
     // Import as module from absolute path
-    const config = importFresh<Linter.Config>(tempReal);
+    const config = importFresh<Linter.Config>(realTempFilePath);
 
     // Delete temp files after use
-    await rm(tempFileDir, { recursive: true, force: true });
+    await rm(realTempFileDir, { recursive: true, force: true });
 
     return config;
   } catch (error) {

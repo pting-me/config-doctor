@@ -1,5 +1,5 @@
 import { Linter } from 'eslint';
-import { loadConfig } from './load-config.js';
+import { loadConfig } from './load-config';
 
 console.log('\nESLint Doctor\n\n');
 

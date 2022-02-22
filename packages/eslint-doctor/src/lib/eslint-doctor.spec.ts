@@ -1,7 +1,10 @@
-// import { eslintDoctor } from './eslint-doctor';
+import { main } from './eslint-doctor';
 
-// describe('eslintDoctor', () => {
-//   it('should work', () => {
-//     expect(eslintDoctor()).toEqual('eslint-doctor');
-//   });
-// });
+describe('eslint-doctor', () => {
+  it('should run without failure', async () => {
+    const consoleSpy = jest.spyOn(console, 'log');
+
+    await main();
+    expect(consoleSpy).toHaveBeenCalledWith('0 issues found.');
+  });
+});
