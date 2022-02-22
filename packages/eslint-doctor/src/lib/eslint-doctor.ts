@@ -3,7 +3,7 @@ import { loadConfig } from './load-config.js';
 
 console.log('\nESLint Doctor\n\n');
 
-const issues = [];
+const issues: string[] = [];
 
 const getConfigFromFile = async () => {
   const config = await loadConfig('./');
