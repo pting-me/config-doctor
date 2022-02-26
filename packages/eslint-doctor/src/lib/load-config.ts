@@ -13,14 +13,7 @@
 //------------------------------------------------------------------------------
 
 import { constants } from 'fs';
-import {
-  access,
-  copyFile,
-  mkdtemp,
-  readFile,
-  realpath,
-  rm,
-} from 'fs/promises';
+import { access, copyFile, mkdir, readFile, realpath, rm } from 'fs/promises';
 import path from 'path';
 import importFresh from 'import-fresh';
 import stripComments from 'strip-json-comments';
@@ -149,7 +142,7 @@ async function loadJSConfigFile(filePath: string) {
     /**
      * We have to import JS using node. We can't use the original
      * logic as if we were loading a YAML or JSON file because:
-     * 
+     *
      * 1. 'import' interprets relative paths relative to the binary file
      *   location, not the location we execute the code.
      *   We have to use absolute paths.
@@ -161,19 +154,23 @@ async function loadJSConfigFile(filePath: string) {
     // Create temp files
     const fileDir = filePath.replace(/(.+)\/([^/]+)/, '$1/');
     const fileName = filePath.replace(/(.+)\/([^/]+)/, '$2');
-    const tempFileDir = await mkdtemp(fileDir + '.temp/eslint-doctor-');
+    const tempFileDir = fileDir + '.eslint-doctor-temp';
+    debug(`Making directory: ${tempFileDir}`);
+    await mkdir(tempFileDir, { recursive: true });
     const tempFilePath = `${tempFileDir}/${fileName}`;
+    debug(`Copying file: ${filePath} -> ${tempFilePath}`);
     await copyFile(filePath, tempFilePath);
-    debug(`Copied file: ${filePath} -> ${tempFilePath}`);
 
     // Get absolute path
     const realTempFileDir = await realpath(tempFileDir);
     const realTempFilePath = await realpath(tempFilePath);
 
     // Import as module from absolute path
+    debug(`Importing file: ${realTempFilePath}`);
     const config = importFresh<Linter.Config>(realTempFilePath);
 
     // Delete temp files after use
+    debug(`Deleting directory: ${realTempFileDir}`);
     await rm(realTempFileDir, { recursive: true, force: true });
 
     return config;
@@ -291,4 +288,11 @@ async function loadConfig(fileDirectory = './') {
   throw new Error('Could not find any ESLint config');
 }
 
-export { loadConfig };
+export {
+  loadConfig,
+  loadJSConfigFile,
+  loadJSONConfigFile,
+  loadLegacyConfigFile,
+  loadPackageJSONConfigFile,
+  loadYAMLConfigFile,
+};

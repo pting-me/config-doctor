@@ -6,7 +6,7 @@ describe('eslint-doctor', () => {
     const testDirectory = expect
       .getState()
       .testPath.replace(/(.+)\/([^/]+)/, '$1/');
-    const testCasesDirectory = testDirectory + '../../test-cases/file-type/';
+    const testCasesDirectory = testDirectory + '../../fixtures/file-type/';
     await main(testCasesDirectory);
     expect(consoleSpy).toHaveBeenCalledWith('0 issues found.');
   });
