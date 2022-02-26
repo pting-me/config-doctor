@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/philting/configdoctor.git"
+    "url": "git+https://github.com/philting/config-doctor.git"
   },
   "keywords": [
     "lint",
@@ -23,7 +23,7 @@
   "author": "Phil Ting",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/philting/configdoctor/issues"
+    "url": "https://github.com/philting/config-doctor/issues"
   },
-  "homepage": "https://github.com/philting/configdoctor#readme"
+  "homepage": "https://github.com/philting/config-doctor#readme"
 }
