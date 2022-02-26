@@ -138,6 +138,9 @@ async function loadLegacyConfigFile(filePath: string) {
 async function loadJSConfigFile(filePath: string) {
   debug(`Loading JS config file: ${filePath}`);
 
+  // keep track of created dir to delete it even if an error occurs
+  let createdDir = '';
+
   try {
     /**
      * We have to import JS using node. We can't use the original
@@ -157,12 +160,12 @@ async function loadJSConfigFile(filePath: string) {
     const tempFileDir = fileDir + '.eslint-doctor-temp';
     debug(`Making directory: ${tempFileDir}`);
     await mkdir(tempFileDir, { recursive: true });
+    const realTempFileDir = await realpath(tempFileDir);
+    createdDir = realTempFileDir;
+
     const tempFilePath = `${tempFileDir}/${fileName}`;
     debug(`Copying file: ${filePath} -> ${tempFilePath}`);
     await copyFile(filePath, tempFilePath);
-
-    // Get absolute path
-    const realTempFileDir = await realpath(tempFileDir);
     const realTempFilePath = await realpath(tempFilePath);
 
     // Import as module from absolute path
@@ -178,6 +181,17 @@ async function loadJSConfigFile(filePath: string) {
     const e = error as Error;
     debug(`Error reading JavaScript file: ${filePath}`);
     e.message = `Cannot read config file: ${filePath}\nError: ${e.message}`;
+
+    try {
+      if (createdDir) {
+        // We want to delete temp files even if an error occurs
+        debug(`Deleting directory: ${createdDir}`);
+        await rm(createdDir, { recursive: true, force: true });
+      }
+    } catch {
+      /* do nothing */
+    }
+
     throw e;
   }
 }
