@@ -1,10 +1,10 @@
 {
   "name": "eslint-doctor",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "bin": {
     "eslint-doctor": "src/index.js"
   },
-  "description": "Static analysis for your static analysis.",
+  "description": "Analyze your ESLint configuration.",
   "main": "src/index.js",
   "scripts": {
     "test": "npx jest"
