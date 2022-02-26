@@ -5,8 +5,8 @@ console.log('\nESLint Doctor\n\n');
 
 const issues: string[] = [];
 
-const getConfigFromFile = async () => {
-  const config = await loadConfig('./');
+const getConfigFromFile = async (fileDirectory = './') => {
+  const config = await loadConfig(fileDirectory);
 
   if (!config) {
     throw new Error('Unable to parse ESLint config.');
@@ -117,8 +117,8 @@ const checkExtensions = (config: Linter.Config) => {
   checkTypescriptExtensionIsAfterEslintRecommended(parsedExtensions);
 };
 
-const main = async () => {
-  const config = await getConfigFromFile();
+const main = async (fileDirectory = './') => {
+  const config = await getConfigFromFile(fileDirectory);
   checkExtensions(config);
   issues.forEach((issue) => {
     console.log(issue);

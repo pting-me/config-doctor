@@ -6,9 +6,6 @@
   },
   "description": "Analyze your ESLint configuration.",
   "main": "src/index.js",
-  "scripts": {
-    "test": "npx jest"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/philting/config-doctor.git"
