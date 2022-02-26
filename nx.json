@@ -1,6 +1,6 @@
 {
   "extends": "@nrwl/workspace/presets/core.json",
-  "npmScope": "confology",
+  "npmScope": "configdoctor",
   "affected": {
     "defaultBase": "main"
   },

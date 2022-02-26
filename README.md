@@ -1,4 +1,4 @@
-# Confology
+# Config Doctor
 
 Tools for analyzing your repo configuration
 

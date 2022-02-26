@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/philting/confology.git"
+    "url": "git+https://github.com/philting/configdoctor.git"
   },
   "keywords": [
     "lint",
@@ -23,7 +23,7 @@
   "author": "Phil Ting",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/philting/confology/issues"
+    "url": "https://github.com/philting/configdoctor/issues"
   },
-  "homepage": "https://github.com/philting/confology#readme"
+  "homepage": "https://github.com/philting/configdoctor#readme"
 }
