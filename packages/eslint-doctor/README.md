@@ -14,10 +14,14 @@ Future iterations will include automatic fixing.
 
 ## Installation
 
-`npm i -g eslint-doctor`
+```Shell
+npm i -g eslint-doctor
+```
 
 ## Usage
 
 Only run this in the directory where your `.eslintrc.*` and `package.json` files are located.
 
-`eslint-doctor`
+```Shell
+eslint-doctor
+```
