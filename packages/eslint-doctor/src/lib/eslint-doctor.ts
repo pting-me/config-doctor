@@ -1,9 +1,5 @@
 import { Linter } from 'eslint';
-import debugOrig from 'debug';
-
 import { loadConfig } from './load-config';
-
-const debug = debugOrig('eslint-doctor:eslint-doctor');
 
 const main = async (fileDirectory = './') => {
   console.log('\nESLint Doctor\n\n');
