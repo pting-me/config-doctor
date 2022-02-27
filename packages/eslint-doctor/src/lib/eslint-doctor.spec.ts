@@ -58,4 +58,12 @@ describe('eslint-doctor', () => {
     await main(testCasesDirectory);
     expect(consoleSpy).toHaveBeenCalledWith('1 issues found.');
   });
+
+  it('should throw error if no config', async () => {
+    const testDirectory = expect
+      .getState()
+      .testPath.replace(/(.+)\/([^/]+)/, '$1/');
+    const testCasesDirectory = testDirectory + '../../fixtures/no-config/';
+    await expect(main(testCasesDirectory)).rejects.toThrow('Could not find any ESLint config');
+  });
 });
