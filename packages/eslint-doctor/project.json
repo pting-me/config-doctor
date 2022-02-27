@@ -18,6 +18,15 @@
         "passWithNoTests": true
       }
     },
+    "test:silent": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/packages/eslint-doctor"],
+      "options": {
+        "jestConfig": "packages/eslint-doctor/jest.config.js",
+        "passWithNoTests": true,
+        "silent": true
+      }
+    },
     "build": {
       "executor": "@nrwl/node:package",
       "outputs": ["{options.outputPath}"],
