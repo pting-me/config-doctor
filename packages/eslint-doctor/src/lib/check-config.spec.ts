@@ -2,6 +2,7 @@ import {
   checkPrefixesThenRemove,
   checkPrettierIsLast,
   checkStyleExtensions,
+  checkTsAll,
   checkTsIsAfterRecommended,
   checkTsResetExtension,
 } from './check-config';
@@ -31,6 +32,11 @@ describe('eslint-doctor', () => {
     expect(issues.length).toBe(1);
   });
 
+  it('should warn when @typescript-eslint/all is used', () => {
+    const issues = checkTsAll(['plugin:@typescript-eslint/all']);
+    expect(issues.length).toBe(1);
+  });
+
   it('should detect ts extension after recommended', () => {
     const issues = checkTsIsAfterRecommended([
       'plugin:@typescript-eslint/eslint-recommended',
@@ -41,7 +47,7 @@ describe('eslint-doctor', () => {
     expect(issues.length).toBe(3);
   });
 
-  it('should warn when ts version >= 3.0.0 and doesn\'t need extra eslint-recommended reset', () => {
+  it("should warn when ts version >= 3.0.0 and doesn't need extra eslint-recommended reset", () => {
     const issues = checkTsResetExtension(
       [
         'eslint:recommended',

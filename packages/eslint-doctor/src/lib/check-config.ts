@@ -5,6 +5,33 @@ import {
   PackageJson,
 } from './load-config';
 
+/**
+ * Gets the dependency version range by checking all possible areas it can be
+ * in the `package.json` object.
+ * @param {PackageJson} packageJson the object containing all data extracted from the `package.json` file
+ * @param {string} packageName name of the package
+ * @returns {string} the version range in valid npm semver format
+ */
+const getDependencyVersionRange = (
+  packageJson: PackageJson,
+  packageName: string
+) => {
+  return (
+    packageJson.dependencies?.[packageName] ||
+    packageJson.devDependencies?.[packageName] ||
+    packageJson.peerDependencies?.[packageName] ||
+    packageJson.optionalDependencies?.[packageName]
+  );
+};
+
+/**
+ * Checks for unnecessary `eslint-config-` prefix.
+ * Also parses out the correct extension name.
+ * @param {string[]} extensions array of extension names
+ * @returns {{parsedExtensions: string[], issues: string[]}}
+ *   object containing `parsedExtensions`, the parsed array of the `extensions`
+ *   input, and `issues` as the array of issues to display
+ */
 const checkPrefixesThenRemove = (extensions: string[]) => {
   const issues: string[] = [];
   const removePrefix = (extensions: string) => {
@@ -25,6 +52,11 @@ const checkPrefixesThenRemove = (extensions: string[]) => {
   };
 };
 
+/**
+ * Checks for conflicting style enforcing extensions.
+ * @param extensions array of extension names
+ * @returns {string[]} array of issues to display
+ */
 const checkStyleExtensions = (extensions: string[]) => {
   const issues: string[] = [];
   const styleExtensions = ['airbnb', 'standard', 'google', 'xo'];
@@ -46,6 +78,11 @@ const checkStyleExtensions = (extensions: string[]) => {
   return issues;
 };
 
+/**
+ * Checks that `prettier` extension appears last.
+ * @param extensions array of extension names
+ * @returns array of issues to display
+ */
 const checkPrettierIsLast = (extensions: string[]) => {
   const issues: string[] = [];
   const hasPrettier = extensions.includes('prettier');
@@ -59,10 +96,24 @@ const checkPrettierIsLast = (extensions: string[]) => {
   return issues;
 };
 
+const checkTsAll = (extensions: string[]) => {
+  const issues = [];
+  if (extensions.includes('plugin:@typescript-eslint/all')) {
+    issues.push(
+      'The extension @typescript-eslint/all is not recommended. Use @typescript-eslint/recommended instead.'
+    );
+  }
+  return issues;
+};
+
+/**
+ * Checks that all `@typescript-eslint` extensions come after `eslint:recommended`.
+ * @param extensions array of extension names
+ * @returns array of issues to display
+ */
 const checkTsIsAfterRecommended = (extensions: string[]) => {
   const recommendedIndex = extensions.indexOf('eslint:recommended');
   const tsExtensions = [
-    'plugin:@typescript-eslint/all',
     'plugin:@typescript-eslint/eslint-recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
@@ -83,18 +134,6 @@ const checkTsIsAfterRecommended = (extensions: string[]) => {
     });
   }
   return issues;
-};
-
-const getDependencyVersionRange = (
-  packageJson: PackageJson,
-  packageName: string
-) => {
-  return (
-    packageJson.dependencies?.[packageName] ||
-    packageJson.devDependencies?.[packageName] ||
-    packageJson.peerDependencies?.[packageName] ||
-    packageJson.optionalDependencies?.[packageName]
-  );
 };
 
 /**
@@ -127,7 +166,6 @@ const checkTsResetExtension = (
   }
 
   const tsExtensions = [
-    'plugin:@typescript-eslint/all',
     'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
   ];
@@ -142,6 +180,7 @@ const checkTsResetExtension = (
     issues.push(
       '@typescript-eslint/eslint-recommended is loaded in all other @typescript-eslint extensions'
     );
+    // TODO: add autofix
   } else {
     // version < 3.0.0 needs to have eslint-recommended before other extensions
     const recommendedIndex = extensions.indexOf(
@@ -158,6 +197,7 @@ const checkTsResetExtension = (
           issues.push(
             `'${extension}' is supposed to come after '@typescript-eslint/eslint-recommended'`
           );
+          // TODO: add autofix
         }
       });
     }
@@ -165,6 +205,11 @@ const checkTsResetExtension = (
   return issues;
 };
 
+/**
+ * Main function to run all checks.
+ * @param fileDirectory the directory to read config from
+ * @returns {Promise<void>}
+ */
 const checkConfig = async (fileDirectory = './') => {
   console.log('\nESLint Doctor\n\n');
 
@@ -176,30 +221,22 @@ const checkConfig = async (fileDirectory = './') => {
 
   // don't check 'extends' if it's undefined
   if (!config?.extends) {
-    return [] as string[];
+    return;
   }
 
   const configExtends =
     typeof config.extends === 'string' ? [config.extends] : config.extends;
 
-  // Check: 'eslint-config-' prefix is unnecessary
   const { parsedExtensions, issues } = checkPrefixesThenRemove(configExtends);
-
-  // Check: config should not have more than one style enforcing extension
   issues.push(...checkStyleExtensions(parsedExtensions));
-
-  // Check: 'prettier' extension must be last in extension list
   issues.push(...checkPrettierIsLast(parsedExtensions));
-
+  issues.push(...checkTsAll(parsedExtensions));
   issues.push(...checkTsResetExtension(parsedExtensions, packageJson));
-  // TODO: add autofix
+  issues.push(...checkTsIsAfterRecommended(parsedExtensions));
 
   // Check: @typescript-eslint plugins should all have the same version
   // TODO: implement
   // TODO: add autofix
-
-  // Check: @typescript-eslint should always come after eslint:recommended
-  issues.push(...checkTsIsAfterRecommended(parsedExtensions));
 
   issues.forEach((issue) => {
     console.log(issue);
@@ -213,6 +250,7 @@ export {
   checkPrefixesThenRemove,
   checkPrettierIsLast,
   checkStyleExtensions,
+  checkTsAll,
   checkTsResetExtension,
   checkTsIsAfterRecommended,
 };
