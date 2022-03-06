@@ -12,7 +12,7 @@ describe('load-config', () => {
   const testDirectory = expect
     .getState()
     .testPath.replace(/(.+)\/([^/]+)/, '$1/');
-  const fixturesDirectory = testDirectory + '../../fixtures/load-config/all-config-files';
+  const fixturesDirectory = testDirectory + '../../fixtures/load-config/all-config-files/';
 
   const getOverride = (config: Linter.Config<Linter.RulesRecord>) => {
     // type assertion - since we know the test will fail if it's undefined
@@ -74,5 +74,13 @@ describe('load-config', () => {
     const config = await loadConfigDirectory(fixturesDirectory);
     const override = getOverride(config);
     expect(override.excludedFiles?.[0]).toBe('.eslintrc.js');
+  });
+
+  it('should throw error if no config', async () => {
+    const testDirectory = expect
+      .getState()
+      .testPath.replace(/(.+)\/([^/]+)/, '$1/');
+    const testCasesDirectory = testDirectory + '../../fixtures/load-config/no-config-files/';
+    await expect(loadConfigDirectory(testCasesDirectory)).rejects.toThrow('Could not find any ESLint config');
   });
 });

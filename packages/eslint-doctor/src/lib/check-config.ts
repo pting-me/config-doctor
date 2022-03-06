@@ -6,12 +6,11 @@ import {
   PackageJson,
 } from './load-config';
 
-const main = async (fileDirectory = './') => {
+const checkConfig = async (fileDirectory = './') => {
   console.log('\nESLint Doctor\n\n');
 
-  const issues: string[] = [];
-
   const checkPrefixesThenRemove = (extensions: string[]) => {
+    const issues: string[] = [];
     const removePrefix = (extensions: string) => {
       const matches = extensions.match(/^eslint-config-(.+)/);
       if (matches && matches[1]) {
@@ -24,10 +23,14 @@ const main = async (fileDirectory = './') => {
       return extensions;
     };
 
-    return extensions.map(removePrefix);
+    return {
+      parsedExtensions: extensions.map(removePrefix),
+      issues,
+    };
   };
 
   const checkStyleExtensions = (extensions: string[]) => {
+    const issues: string[] = [];
     const styleExtensions = ['airbnb', 'standard', 'google', 'xo'];
 
     const usedStyleExtensions = extensions.filter((extension) => {
@@ -44,9 +47,11 @@ const main = async (fileDirectory = './') => {
       message += '\n';
       issues.push(message);
     }
+    return issues;
   };
 
   const checkPrettierIsLast = (extensions: string[]) => {
+    const issues: string[] = [];
     const hasPrettier = extensions.includes('prettier');
     if (hasPrettier) {
       const prettierIsLast = extensions[extensions.length - 1] === 'prettier';
@@ -55,6 +60,7 @@ const main = async (fileDirectory = './') => {
         // TODO: add autofix
       }
     }
+    return issues;
   };
 
   const checkTsIsAfterRecommended = (extensions: string[]) => {
@@ -66,6 +72,7 @@ const main = async (fileDirectory = './') => {
       'plugin:@typescript-eslint/recommended-requiring-type-checking',
     ];
 
+    const issues: string[] = [];
     if (recommendedIndex !== -1) {
       tsExtensions.forEach((extension) => {
         // if recommended comes after current extension
@@ -79,6 +86,7 @@ const main = async (fileDirectory = './') => {
         }
       });
     }
+    return issues;
   };
 
   const getDependencyVersionRange = (
@@ -104,11 +112,12 @@ const main = async (fileDirectory = './') => {
     extensions: string[],
     packageJson: PackageJson
   ) => {
+    const issues: string[] = [];
     const hasTsEslintRecommended = extensions.includes(
       '@typescript-eslint/eslint-recommended'
     );
     if (!hasTsEslintRecommended) {
-      return;
+      return issues;
     }
 
     const range = getDependencyVersionRange(
@@ -117,7 +126,7 @@ const main = async (fileDirectory = './') => {
     );
     const version = range && minVersion(range);
     if (!version) {
-      return;
+      return issues;
     }
 
     if (gte(version, '3.0.0')) {
@@ -127,7 +136,9 @@ const main = async (fileDirectory = './') => {
       );
     } else {
       // version < 3.0.0 needs to have eslint-recommended before other extensions
-      const recommendedIndex = extensions.indexOf('plugin:@typescript-eslint/eslint-recommended');
+      const recommendedIndex = extensions.indexOf(
+        'plugin:@typescript-eslint/eslint-recommended'
+      );
       const tsExtensions = [
         'plugin:@typescript-eslint/all',
         'plugin:@typescript-eslint/recommended',
@@ -148,6 +159,7 @@ const main = async (fileDirectory = './') => {
         });
       }
     }
+    return issues;
   };
 
   const checkExtensions = ({
@@ -161,22 +173,22 @@ const main = async (fileDirectory = './') => {
 
     // don't check 'extends' if it's undefined
     if (!config.extends) {
-      return;
+      return [];
     }
 
     const configExtends =
       typeof config.extends === 'string' ? [config.extends] : config.extends;
 
     // Check: 'eslint-config-' prefix is unnecessary
-    const parsedExtensions = checkPrefixesThenRemove(configExtends);
+    const { parsedExtensions, issues } = checkPrefixesThenRemove(configExtends);
 
     // Check: config should not have more than one style enforcing extension
-    checkStyleExtensions(parsedExtensions);
+    issues.push(...checkStyleExtensions(parsedExtensions));
 
     // Check: 'prettier' extension must be last in extension list
-    checkPrettierIsLast(parsedExtensions);
+    issues.push(...checkPrettierIsLast(parsedExtensions));
 
-    checkTsEslintRecommended(parsedExtensions, packageJson);
+    issues.push(...checkTsEslintRecommended(parsedExtensions, packageJson));
     // TODO: add autofix
 
     // Check: @typescript-eslint plugins should all have the same version
@@ -184,13 +196,15 @@ const main = async (fileDirectory = './') => {
     // TODO: add autofix
 
     // Check: @typescript-eslint should always come after eslint:recommended
-    checkTsIsAfterRecommended(parsedExtensions);
+    issues.push(...checkTsIsAfterRecommended(parsedExtensions));
+
+    return issues;
   };
 
   const packageJson = await loadPackageJsonFile(`${fileDirectory}package.json`);
   const config =
     packageJson.eslintConfig ?? (await loadConfigDirectory(fileDirectory));
-  checkExtensions({ config, packageJson });
+  const issues = checkExtensions({ config, packageJson });
 
   issues.forEach((issue) => {
     console.log(issue);
@@ -199,4 +213,4 @@ const main = async (fileDirectory = './') => {
   console.log(`${issues.length} issues found.`);
 };
 
-export { main };
+export { checkConfig };

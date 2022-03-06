@@ -1,4 +1,4 @@
 #!/usr/bin/env node
 
-import { main } from './lib/eslint-doctor';
-main().catch(console.error);
+import { checkConfig } from './lib/check-config';
+checkConfig().catch(console.error);
