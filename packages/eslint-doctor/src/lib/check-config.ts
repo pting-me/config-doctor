@@ -54,7 +54,7 @@ const checkPrefixesThenRemove = (extensions: string[]) => {
 
 /**
  * Checks for conflicting style enforcing extensions.
- * @param extensions array of extension names
+ * @param {string[]} extensions array of extension names
  * @returns {string[]} array of issues to display
  */
 const checkStyleExtensions = (extensions: string[]) => {
@@ -80,8 +80,8 @@ const checkStyleExtensions = (extensions: string[]) => {
 
 /**
  * Checks that `prettier` extension appears last.
- * @param extensions array of extension names
- * @returns array of issues to display
+ * @param {string[]} extensions array of extension names
+ * @returns {string[]} array of issues to display
  */
 const checkPrettierIsLast = (extensions: string[]) => {
   const issues: string[] = [];
@@ -96,6 +96,11 @@ const checkPrettierIsLast = (extensions: string[]) => {
   return issues;
 };
 
+/**
+ * Checks for `@typescript-eslint/all`, which is not recommended.
+ * @param {string[]} extensions array of extension names
+ * @returns {string[]} array of issues to display
+ */
 const checkTsAll = (extensions: string[]) => {
   const issues = [];
   if (extensions.includes('plugin:@typescript-eslint/all')) {
@@ -108,8 +113,8 @@ const checkTsAll = (extensions: string[]) => {
 
 /**
  * Checks that all `@typescript-eslint` extensions come after `eslint:recommended`.
- * @param extensions array of extension names
- * @returns array of issues to display
+ * @param {string[]} extensions array of extension names
+ * @returns {string[]} array of issues to display
  */
 const checkTsIsAfterRecommended = (extensions: string[]) => {
   const recommendedIndex = extensions.indexOf('eslint:recommended');
@@ -142,7 +147,9 @@ const checkTsIsAfterRecommended = (extensions: string[]) => {
  * If @typescript-eslint version >= 3.0.0, it will ask user to remove if another
  * @typescript-eslint extension has been included.
  * For other versions, check that it's before any other @typescript-eslint extension.
- * @param {string[]} extensions Array of ESLint extension names
+ * @param {string[]} extensions array of extension names
+ * @param {PackageJson} packageJson object containing `package.json` data
+ * @returns {string[]} array of issues to display
  */
 const checkTsResetExtension = (
   extensions: string[],
