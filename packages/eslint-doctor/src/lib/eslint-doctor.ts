@@ -1,5 +1,5 @@
 import { Linter } from 'eslint';
-import { gte, lt, minVersion } from 'semver';
+import { gte, minVersion } from 'semver';
 import {
   loadConfigDirectory,
   loadPackageJsonFile,
