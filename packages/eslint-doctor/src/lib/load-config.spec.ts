@@ -12,11 +12,13 @@ describe('load-config', () => {
   const testDirectory = expect
     .getState()
     .testPath.replace(/(.+)\/([^/]+)/, '$1/');
-  const fixturesDirectory = testDirectory + '../../fixtures/load-config/all-config-files/';
+  const fixturesDirectory =
+    testDirectory + '../../fixtures/load-config/all-config-files/';
 
   const getOverride = (config: Linter.Config<Linter.RulesRecord>) => {
     // type assertion - since we know the test will fail if it's undefined
-    const override = config?.overrides?.[0] as Linter.ConfigOverride<Linter.RulesRecord>;
+    const override = config
+      ?.overrides?.[0] as Linter.ConfigOverride<Linter.RulesRecord>;
     expect(override).not.toBeUndefined();
     return override;
   };
@@ -66,13 +68,17 @@ describe('load-config', () => {
   it('loadPackageJsonConfigFile', async () => {
     const configPath = fixturesDirectory + 'package.json';
     const config = await loadPackageJsonConfigFile(configPath);
-    const override = getOverride(config);
+    expect(config).not.toBeUndefined();
+    // type assertion - since above code guarantees config won't be undefined
+    const override = getOverride(config as Linter.Config<Linter.RulesRecord>);
     expect(override.excludedFiles?.[0]).toBe('package.json');
   });
 
   it('js file should have highest priority', async () => {
     const config = await loadConfigDirectory(fixturesDirectory);
-    const override = getOverride(config);
+    expect(config).not.toBeUndefined();
+    // type assertion - since above code guarantees config won't be undefined
+    const override = getOverride(config as Linter.Config<Linter.RulesRecord>);
     expect(override.excludedFiles?.[0]).toBe('.eslintrc.js');
   });
 
@@ -80,7 +86,10 @@ describe('load-config', () => {
     const testDirectory = expect
       .getState()
       .testPath.replace(/(.+)\/([^/]+)/, '$1/');
-    const testCasesDirectory = testDirectory + '../../fixtures/load-config/no-config-files/';
-    await expect(loadConfigDirectory(testCasesDirectory)).rejects.toThrow('Could not find any ESLint config');
+    const testCasesDirectory =
+      testDirectory + '../../fixtures/load-config/no-config-files/';
+    await expect(loadConfigDirectory(testCasesDirectory)).rejects.toThrow(
+      'Could not find any ESLint config'
+    );
   });
 });

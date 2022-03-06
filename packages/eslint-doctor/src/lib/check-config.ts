@@ -1,4 +1,3 @@
-import { Linter } from 'eslint';
 import { gte, minVersion } from 'semver';
 import {
   loadConfigDirectory,
@@ -101,9 +100,9 @@ const getDependencyVersionRange = (
 /**
  * Check @typescript-eslint/eslint-recommended, which is an extension that
  * resets the eslint-recommended rules for use by the @typescript-eslint plugin.
- * If @typescript-eslint version >= 3.0.0, it will ask user to remove.
- * For other versions, check that it's after eslint-recommended
- * and before any other @typescript-eslint extension.
+ * If @typescript-eslint version >= 3.0.0, it will ask user to remove if another
+ * @typescript-eslint extension has been included.
+ * For other versions, check that it's before any other @typescript-eslint extension.
  * @param {string[]} extensions Array of ESLint extension names
  */
 const checkTsResetExtension = (
@@ -112,7 +111,7 @@ const checkTsResetExtension = (
 ) => {
   const issues: string[] = [];
   const hasTsEslintRecommended = extensions.includes(
-    '@typescript-eslint/eslint-recommended'
+    'plugin:@typescript-eslint/eslint-recommended'
   );
   if (!hasTsEslintRecommended) {
     return issues;
@@ -127,21 +126,27 @@ const checkTsResetExtension = (
     return issues;
   }
 
-  if (gte(version, '3.0.0')) {
-    // version >= 3.0.0 includes eslint-recommended in recommended
+  const tsExtensions = [
+    'plugin:@typescript-eslint/all',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/recommended-requiring-type-checking',
+  ];
+
+  if (
+    gte(version, '3.0.0') &&
+    extensions.reduce((allIncludes, extension) => {
+      return allIncludes || tsExtensions.includes(extension);
+    }, false)
+  ) {
+    // version >= 3.0.0 includes eslint-recommended in other extensions
     issues.push(
-      '@typescript-eslint/eslint-recommended is not necessary for version >= 3.0.0'
+      '@typescript-eslint/eslint-recommended is loaded in all other @typescript-eslint extensions'
     );
   } else {
     // version < 3.0.0 needs to have eslint-recommended before other extensions
     const recommendedIndex = extensions.indexOf(
       'plugin:@typescript-eslint/eslint-recommended'
     );
-    const tsExtensions = [
-      'plugin:@typescript-eslint/all',
-      'plugin:@typescript-eslint/recommended',
-      'plugin:@typescript-eslint/recommended-requiring-type-checking',
-    ];
 
     if (recommendedIndex !== -1) {
       tsExtensions.forEach((extension) => {
@@ -160,18 +165,18 @@ const checkTsResetExtension = (
   return issues;
 };
 
-const checkExtensions = ({
-  config,
-  packageJson,
-}: {
-  config: Linter.Config;
-  packageJson: PackageJson;
-}) => {
+const checkConfig = async (fileDirectory = './') => {
+  console.log('\nESLint Doctor\n\n');
+
+  const packageJson = await loadPackageJsonFile(`${fileDirectory}package.json`);
+  const config =
+    packageJson.eslintConfig ?? (await loadConfigDirectory(fileDirectory));
+
   // TODO: check overrides
 
   // don't check 'extends' if it's undefined
-  if (!config.extends) {
-    return [];
+  if (!config?.extends) {
+    return [] as string[];
   }
 
   const configExtends =
@@ -196,17 +201,6 @@ const checkExtensions = ({
   // Check: @typescript-eslint should always come after eslint:recommended
   issues.push(...checkTsIsAfterRecommended(parsedExtensions));
 
-  return issues;
-};
-
-const checkConfig = async (fileDirectory = './') => {
-  console.log('\nESLint Doctor\n\n');
-
-  const packageJson = await loadPackageJsonFile(`${fileDirectory}package.json`);
-  const config =
-    packageJson.eslintConfig ?? (await loadConfigDirectory(fileDirectory));
-  const issues = checkExtensions({ config, packageJson });
-
   issues.forEach((issue) => {
     console.log(issue);
   });
@@ -216,7 +210,6 @@ const checkConfig = async (fileDirectory = './') => {
 
 export {
   checkConfig,
-  checkExtensions,
   checkPrefixesThenRemove,
   checkPrettierIsLast,
   checkStyleExtensions,

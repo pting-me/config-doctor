@@ -24,7 +24,7 @@ import { PackageJson as BasePackageJson } from 'type-fest';
 // TODO: Add this type to type-fest
 //   https://github.com/sindresorhus/type-fest/issues/371
 type PackageJson = BasePackageJson & {
-  eslintConfig: Linter.Config;
+  eslintConfig?: Linter.Config;
 };
 
 const debug = debugOrig('eslint-doctor:load-config');

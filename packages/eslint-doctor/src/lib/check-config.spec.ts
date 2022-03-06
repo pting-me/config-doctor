@@ -3,6 +3,7 @@ import {
   checkPrettierIsLast,
   checkStyleExtensions,
   checkTsIsAfterRecommended,
+  checkTsResetExtension,
 } from './check-config';
 
 describe('eslint-doctor', () => {
@@ -38,5 +39,41 @@ describe('eslint-doctor', () => {
       'eslint:recommended',
     ]);
     expect(issues.length).toBe(3);
+  });
+
+  it('should warn when ts version >= 3.0.0 and doesn\'t need extra eslint-recommended reset', () => {
+    const issues = checkTsResetExtension(
+      [
+        'eslint:recommended',
+        'plugin:@typescript-eslint/eslint-recommended',
+        'plugin:@typescript-eslint/recommended',
+      ],
+      { devDependencies: { '@typescript-eslint/eslint-plugin': '5.0.0' } }
+    );
+    expect(issues.length).toBe(1);
+  });
+
+  it('should warn when ts version >= 3.0.0 and eslint-recommended comes after', () => {
+    const issues = checkTsResetExtension(
+      [
+        'eslint:recommended',
+        'plugin:@typescript-eslint/recommended',
+        'plugin:@typescript-eslint/eslint-recommended',
+      ],
+      { devDependencies: { '@typescript-eslint/eslint-plugin': '5.0.0' } }
+    );
+    expect(issues.length).toBe(1);
+  });
+
+  it('should warn when ts version < 3.0.0 and eslint-recommended comes after', () => {
+    const issues = checkTsResetExtension(
+      [
+        'eslint:recommended',
+        'plugin:@typescript-eslint/recommended',
+        'plugin:@typescript-eslint/eslint-recommended',
+      ],
+      { devDependencies: { '@typescript-eslint/eslint-plugin': '2.0.0' } }
+    );
+    expect(issues.length).toBe(1);
   });
 });
