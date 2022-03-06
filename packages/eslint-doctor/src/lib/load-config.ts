@@ -21,6 +21,8 @@ import debugOrig from 'debug';
 import { Linter } from 'eslint';
 import { PackageJson } from 'type-fest';
 
+// TODO: Add this type to type-fest
+//   https://github.com/sindresorhus/type-fest/issues/371
 type PackageJsonWithEslintConfig = PackageJson & {
   eslintConfig: Linter.Config;
 };
