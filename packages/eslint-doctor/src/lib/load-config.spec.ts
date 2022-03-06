@@ -12,7 +12,7 @@ describe('load-config', () => {
   const testDirectory = expect
     .getState()
     .testPath.replace(/(.+)\/([^/]+)/, '$1/');
-  const fixturesDirectory = testDirectory + '../../fixtures/file-type/';
+  const fixturesDirectory = testDirectory + '../../fixtures/load-config/all-config-files';
 
   const getOverride = (config: Linter.Config<Linter.RulesRecord>) => {
     // type assertion - since we know the test will fail if it's undefined
