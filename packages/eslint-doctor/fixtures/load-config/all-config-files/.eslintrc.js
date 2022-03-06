@@ -1,8 +1,10 @@
+const { sample } = require('./sample');
+
 module.exports = {
   overrides: [
     {
       files: ['*.js', '*.jsx'],
-      excludedFiles: ['.eslintrc.js'],
+      excludedFiles: ['.eslintrc.js', sample],
     },
   ],
 };

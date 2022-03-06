@@ -142,7 +142,7 @@ async function loadLegacyConfigFile(filePath: string) {
  * @returns {ConfigData} The configuration object from the file.
  * @throws {Error} If the file cannot be read.
  */
-async function loadJsConfigFile(filePath: string) {
+async function oldLoadJsConfigFile(filePath: string) {
   debug(`Loading JS config file: ${filePath}`);
 
   // keep track of created dir to delete it even if an error occurs
@@ -204,6 +204,40 @@ async function loadJsConfigFile(filePath: string) {
 }
 
 /**
+ * Loads a JavaScript configuration from a file.
+ * @param {string} filePath The filename to load.
+ * @returns {ConfigData} The configuration object from the file.
+ * @throws {Error} If the file cannot be read.
+ */
+ async function loadJsConfigFile(filePath: string) {
+  debug(`Loading JS config file: ${filePath}`);
+
+  try {
+    /**
+     * We have to import JS using node. We can't use the original
+     *   logic as if we were loading a YAML or JSON file because 'import'
+     *   interprets relative paths relative to the binary file
+     *   location, not the location we execute the code.
+     *   We have to use absolute paths.
+     */
+
+    const realFilePath = await realpath(filePath);
+
+    // Import as module from absolute path
+    debug(`Importing file: ${realFilePath}`);
+    const config = importFresh<Linter.Config>(realFilePath);
+
+    return config;
+  } catch (error) {
+    const e = error as Error;
+    debug(`Error reading JavaScript file: ${filePath}`);
+    e.message = `Cannot read config file: ${filePath}\nError: ${e.message}`;
+
+    throw e;
+  }
+}
+
+/**
  * Loads a package.json file
  * @param {string} filePath The filename to load.
  * @returns {ConfigData} The configuration object from the file.
@@ -235,7 +269,7 @@ async function loadPackageJsonConfigFile(filePath: string) {
   try {
     const packageData = await loadPackageJsonFile(filePath);
 
-    if (!Object.hasOwnProperty.call(packageData, 'eslintConfig')) {
+    if (!packageData.eslintConfig) {
       throw Object.assign(
         new Error("package.json file doesn't have 'eslintConfig' field."),
         { code: 'ESLINT_CONFIG_FIELD_NOT_FOUND' }

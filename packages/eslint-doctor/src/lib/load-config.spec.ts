@@ -32,11 +32,13 @@ describe('load-config', () => {
     const configJs = await loadJsConfigFile(configJsPath);
     const overrideJs = getOverride(configJs);
     expect(overrideJs.excludedFiles?.[0]).toBe('.eslintrc.js');
+    expect(overrideJs.excludedFiles?.[1]).toBe('sample.js');
 
     const configCjsPath = fixturesDirectory + '.eslintrc.cjs';
     const configCjs = await loadJsConfigFile(configCjsPath);
     const overrideCjs = getOverride(configCjs);
     expect(overrideCjs.excludedFiles?.[0]).toBe('.eslintrc.cjs');
+    expect(overrideCjs.excludedFiles?.[1]).toBe('sample.js');
   });
 
   it('loadYamlConfigFile', async () => {
@@ -68,17 +70,13 @@ describe('load-config', () => {
   it('loadPackageJsonConfigFile', async () => {
     const configPath = fixturesDirectory + 'package.json';
     const config = await loadPackageJsonConfigFile(configPath);
-    expect(config).not.toBeUndefined();
-    // type assertion - since above code guarantees config won't be undefined
-    const override = getOverride(config as Linter.Config<Linter.RulesRecord>);
+    const override = getOverride(config);
     expect(override.excludedFiles?.[0]).toBe('package.json');
   });
 
   it('js file should have highest priority', async () => {
     const config = await loadConfigDirectory(fixturesDirectory);
-    expect(config).not.toBeUndefined();
-    // type assertion - since above code guarantees config won't be undefined
-    const override = getOverride(config as Linter.Config<Linter.RulesRecord>);
+    const override = getOverride(config);
     expect(override.excludedFiles?.[0]).toBe('.eslintrc.js');
   });
 

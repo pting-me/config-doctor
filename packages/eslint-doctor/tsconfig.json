@@ -1,5 +1,9 @@
 {
   "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    /* We have to turn this on to import .eslintrc.js files */
+    "allowJs": true
+  },
   "files": [],
   "include": [],
   "references": [
