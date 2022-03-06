@@ -13,7 +13,7 @@
 //------------------------------------------------------------------------------
 
 import { constants } from 'fs';
-import { access, copyFile, mkdir, readFile, realpath, rm } from 'fs/promises';
+import { access, readFile, realpath } from 'fs/promises';
 import path from 'path';
 import importFresh from 'import-fresh';
 import stripComments from 'strip-json-comments';
