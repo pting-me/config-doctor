@@ -1,10 +1,10 @@
 import {
   loadConfig,
-  loadJSConfigFile,
-  loadJSONConfigFile,
+  loadJsConfigFile,
+  loadJsonConfigFile,
   loadLegacyConfigFile,
-  loadPackageJSONConfigFile,
-  loadYAMLConfigFile,
+  loadPackageJsonConfigFile,
+  loadYamlConfigFile,
 } from './load-config';
 import { Linter } from 'eslint';
 
@@ -25,33 +25,33 @@ describe('load-config', () => {
     await loadConfig(fixturesDirectory);
   });
 
-  it('loadJSConfigFile', async () => {
+  it('loadJsConfigFile', async () => {
     const configJsPath = fixturesDirectory + '.eslintrc.js';
-    const configJs = await loadJSConfigFile(configJsPath);
+    const configJs = await loadJsConfigFile(configJsPath);
     const overrideJs = getOverride(configJs);
     expect(overrideJs.excludedFiles?.[0]).toBe('.eslintrc.js');
 
     const configCjsPath = fixturesDirectory + '.eslintrc.cjs';
-    const configCjs = await loadJSConfigFile(configCjsPath);
+    const configCjs = await loadJsConfigFile(configCjsPath);
     const overrideCjs = getOverride(configCjs);
     expect(overrideCjs.excludedFiles?.[0]).toBe('.eslintrc.cjs');
   });
 
-  it('loadYAMLConfigFile', async () => {
+  it('loadYamlConfigFile', async () => {
     const configYamlPath = fixturesDirectory + '.eslintrc.yaml';
-    const configYaml = await loadYAMLConfigFile(configYamlPath);
+    const configYaml = await loadYamlConfigFile(configYamlPath);
     const overrideYaml = getOverride(configYaml);
     expect(overrideYaml.excludedFiles?.[0]).toBe('.eslintrc.yaml');
 
     const configYmlPath = fixturesDirectory + '.eslintrc.yml';
-    const configYml = await loadYAMLConfigFile(configYmlPath);
+    const configYml = await loadYamlConfigFile(configYmlPath);
     const overrideYml = getOverride(configYml);
     expect(overrideYml.excludedFiles?.[0]).toBe('.eslintrc.yml');
   });
 
-  it('loadJSONConfigFile', async () => {
+  it('loadJsonConfigFile', async () => {
     const configPath = fixturesDirectory + '.eslintrc.json';
-    const config = await loadJSONConfigFile(configPath);
+    const config = await loadJsonConfigFile(configPath);
     const override = getOverride(config);
     expect(override.excludedFiles?.[0]).toBe('.eslintrc.json');
   });
@@ -63,9 +63,9 @@ describe('load-config', () => {
     expect(override.excludedFiles?.[0]).toBe('.eslintrc');
   });
 
-  it('loadPackageJSONConfigFile', async () => {
+  it('loadPackageJsonConfigFile', async () => {
     const configPath = fixturesDirectory + 'package.json';
-    const config = await loadPackageJSONConfigFile(configPath);
+    const config = await loadPackageJsonConfigFile(configPath);
     const override = getOverride(config);
     expect(override.excludedFiles?.[0]).toBe('package.json');
   });

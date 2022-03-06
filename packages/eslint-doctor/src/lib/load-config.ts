@@ -19,6 +19,11 @@ import importFresh from 'import-fresh';
 import stripComments from 'strip-json-comments';
 import debugOrig from 'debug';
 import { Linter } from 'eslint';
+import { PackageJson } from 'type-fest';
+
+type PackageJsonWithEslintConfig = PackageJson & {
+  eslintConfig: Linter.Config;
+};
 
 const debug = debugOrig('eslint-doctor:load-config');
 
@@ -65,7 +70,7 @@ async function readFileWrapper(filePath: string) {
  * @returns {ConfigData} The configuration object from the file.
  * @throws {Error} If the file cannot be read.
  */
-async function loadYAMLConfigFile(filePath: string): Promise<Linter.Config> {
+async function loadYamlConfigFile(filePath: string): Promise<Linter.Config> {
   debug(`Loading YAML config file: ${filePath}`);
 
   // lazy load YAML to improve performance when not used
@@ -88,7 +93,7 @@ async function loadYAMLConfigFile(filePath: string): Promise<Linter.Config> {
  * @returns {ConfigData} The configuration object from the file.
  * @throws {Error} If the file cannot be read.
  */
-async function loadJSONConfigFile(filePath: string) {
+async function loadJsonConfigFile(filePath: string) {
   debug(`Loading JSON config file: ${filePath}`);
 
   try {
@@ -135,7 +140,7 @@ async function loadLegacyConfigFile(filePath: string) {
  * @returns {ConfigData} The configuration object from the file.
  * @throws {Error} If the file cannot be read.
  */
-async function loadJSConfigFile(filePath: string) {
+async function loadJsConfigFile(filePath: string) {
   debug(`Loading JS config file: ${filePath}`);
 
   // keep track of created dir to delete it even if an error occurs
@@ -197,17 +202,36 @@ async function loadJSConfigFile(filePath: string) {
 }
 
 /**
+ * Loads a package.json file
+ * @param {string} filePath The filename to load.
+ * @returns {ConfigData} The configuration object from the file.
+ * @throws {Error} If the file cannot be read.
+ */
+async function loadPackageJsonFile(filePath: string) {
+  debug(`Loading package.json file: ${filePath}`);
+  try {
+    const packageData = JSON.parse(
+      stripComments(await readFileWrapper(filePath))
+    ) as PackageJsonWithEslintConfig;
+
+    return packageData;
+  } catch (error) {
+    const e = error as Error;
+    debug(`Error reading package.json file: ${filePath}`);
+    e.message = `Cannot read package.json file: ${filePath}\nError: ${e.message}`;
+    throw e;
+  }
+}
+
+/**
  * Loads a configuration from a package.json file.
  * @param {string} filePath The filename to load.
  * @returns {ConfigData} The configuration object from the file.
  * @throws {Error} If the file cannot be read.
  */
-async function loadPackageJSONConfigFile(filePath: string) {
-  debug(`Loading package.json config file: ${filePath}`);
+async function loadPackageJsonConfigFile(filePath: string) {
   try {
-    const packageData = JSON.parse(
-      stripComments(await readFileWrapper(filePath))
-    ) as Record<string, unknown>;
+    const packageData = await loadPackageJsonFile(filePath);
 
     if (!Object.hasOwnProperty.call(packageData, 'eslintConfig')) {
       throw Object.assign(
@@ -216,7 +240,7 @@ async function loadPackageJSONConfigFile(filePath: string) {
       );
     }
 
-    return packageData.eslintConfig as Linter.Config;
+    return packageData.eslintConfig;
   } catch (error) {
     const e = error as Error;
     debug(`Error reading package.json file: ${filePath}`);
@@ -232,7 +256,7 @@ async function loadPackageJSONConfigFile(filePath: string) {
  */
 // Will be used to check eslintignore files at a later time
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function loadESLintIgnoreFile(filePath: string) {
+async function loadEslintIgnoreFile(filePath: string) {
   debug(`Loading .eslintignore file: ${filePath}`);
 
   try {
@@ -257,17 +281,17 @@ function loadConfigFile(filePath: string) {
   switch (path.extname(filePath)) {
     case '.js':
     case '.cjs':
-      return loadJSConfigFile(filePath);
+      return loadJsConfigFile(filePath);
 
     case '.json':
       if (path.basename(filePath) === 'package.json') {
-        return loadPackageJSONConfigFile(filePath);
+        return loadPackageJsonConfigFile(filePath);
       }
-      return loadJSONConfigFile(filePath);
+      return loadJsonConfigFile(filePath);
 
     case '.yaml':
     case '.yml':
-      return loadYAMLConfigFile(filePath);
+      return loadYamlConfigFile(filePath);
 
     default:
       return loadLegacyConfigFile(filePath);
@@ -304,9 +328,10 @@ async function loadConfig(fileDirectory = './') {
 
 export {
   loadConfig,
-  loadJSConfigFile,
-  loadJSONConfigFile,
+  loadJsConfigFile,
+  loadJsonConfigFile,
   loadLegacyConfigFile,
-  loadPackageJSONConfigFile,
-  loadYAMLConfigFile,
+  loadPackageJsonConfigFile,
+  loadPackageJsonFile,
+  loadYamlConfigFile,
 };
