@@ -1,62 +1,42 @@
-import { checkConfig } from './check-config';
+import {
+  checkPrefixesThenRemove,
+  checkPrettierIsLast,
+  checkStyleExtensions,
+  checkTsIsAfterRecommended,
+} from './check-config';
 
-describe.skip('eslint-doctor', () => {
+describe('eslint-doctor', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should run without failure', async () => {
-    const consoleSpy = jest.spyOn(console, 'log');
-    const testDirectory = expect
-      .getState()
-      .testPath.replace(/(.+)\/([^/]+)/, '$1/');
-    const testCasesDirectory = testDirectory + '../../fixtures/load-config/';
-    await checkConfig(testCasesDirectory);
-    expect(consoleSpy).toHaveBeenCalledWith('0 issues found.');
+  it('should detect extra prefixes', () => {
+    const { parsedExtensions, issues } = checkPrefixesThenRemove([
+      'eslint-config-airbnb',
+      'eslint-config-prettier',
+    ]);
+
+    expect(issues.length).toBe(2);
+    expect(parsedExtensions).toStrictEqual(['airbnb', 'prettier']);
   });
 
-  it('should detect extra prefixes', async () => {
-    const consoleSpy = jest.spyOn(console, 'log');
-    const testDirectory = expect
-      .getState()
-      .testPath.replace(/(.+)\/([^/]+)/, '$1/');
-    const testCasesDirectory =
-      testDirectory + '../../fixtures/extension/prefixes/';
-    await checkConfig(testCasesDirectory);
-    expect(consoleSpy).toHaveBeenCalledWith('2 issues found.');
+  it('should detect conflicting style extensions', () => {
+    const issues = checkStyleExtensions(['airbnb', 'google']);
+    expect(issues.length).toBe(1);
   });
 
-  it('should detect conflicting style extensions', async () => {
-    const consoleSpy = jest.spyOn(console, 'log');
-    const testDirectory = expect
-      .getState()
-      .testPath.replace(/(.+)\/([^/]+)/, '$1/');
-    const testCasesDirectory =
-      testDirectory + '../../fixtures/extension/style-extensions/';
-    await checkConfig(testCasesDirectory);
-    expect(consoleSpy).toHaveBeenCalledWith('1 issues found.');
+  it('should detect prettier not last', () => {
+    const issues = checkPrettierIsLast(['prettier', 'eslint:recommended']);
+    expect(issues.length).toBe(1);
   });
 
-  it('should detect prettier not last', async () => {
-    const consoleSpy = jest.spyOn(console, 'log');
-    const testDirectory = expect
-      .getState()
-      .testPath.replace(/(.+)\/([^/]+)/, '$1/');
-    const testCasesDirectory =
-      testDirectory + '../../fixtures/extension/prettier-last/';
-    await checkConfig(testCasesDirectory);
-    expect(consoleSpy).toHaveBeenCalledWith('1 issues found.');
+  it('should detect ts extension after recommended', () => {
+    const issues = checkTsIsAfterRecommended([
+      'plugin:@typescript-eslint/eslint-recommended',
+      'plugin:@typescript-eslint/recommended',
+      'plugin:@typescript-eslint/recommended-requiring-type-checking',
+      'eslint:recommended',
+    ]);
+    expect(issues.length).toBe(3);
   });
-
-  it('should detect ts extension after recommended', async () => {
-    const consoleSpy = jest.spyOn(console, 'log');
-    const testDirectory = expect
-      .getState()
-      .testPath.replace(/(.+)\/([^/]+)/, '$1/');
-    const testCasesDirectory =
-      testDirectory + '../../fixtures/extension/ts-after/';
-    await checkConfig(testCasesDirectory);
-    expect(consoleSpy).toHaveBeenCalledWith('1 issues found.');
-  });
-
 });
