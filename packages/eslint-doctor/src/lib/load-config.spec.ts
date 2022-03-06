@@ -1,5 +1,5 @@
 import {
-  loadConfig,
+  loadConfigDirectory,
   loadJsConfigFile,
   loadJsonConfigFile,
   loadLegacyConfigFile,
@@ -22,7 +22,7 @@ describe('load-config', () => {
   };
 
   it('should run without failure', async () => {
-    await loadConfig(fixturesDirectory);
+    await loadConfigDirectory(fixturesDirectory);
   });
 
   it('loadJsConfigFile', async () => {
@@ -71,7 +71,7 @@ describe('load-config', () => {
   });
 
   it('js file should have highest priority', async () => {
-    const config = await loadConfig(fixturesDirectory);
+    const config = await loadConfigDirectory(fixturesDirectory);
     const override = getOverride(config);
     expect(override.excludedFiles?.[0]).toBe('.eslintrc.js');
   });

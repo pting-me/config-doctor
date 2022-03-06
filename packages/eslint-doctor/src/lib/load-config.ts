@@ -19,11 +19,11 @@ import importFresh from 'import-fresh';
 import stripComments from 'strip-json-comments';
 import debugOrig from 'debug';
 import { Linter } from 'eslint';
-import { PackageJson } from 'type-fest';
+import { PackageJson as BasePackageJson } from 'type-fest';
 
 // TODO: Add this type to type-fest
 //   https://github.com/sindresorhus/type-fest/issues/371
-type PackageJsonWithEslintConfig = PackageJson & {
+type PackageJson = BasePackageJson & {
   eslintConfig: Linter.Config;
 };
 
@@ -214,7 +214,7 @@ async function loadPackageJsonFile(filePath: string) {
   try {
     const packageData = JSON.parse(
       stripComments(await readFileWrapper(filePath))
-    ) as PackageJsonWithEslintConfig;
+    ) as PackageJson;
 
     return packageData;
   } catch (error) {
@@ -305,7 +305,7 @@ function loadConfigFile(filePath: string) {
  * @param {string} fileDirectory The path to the directory of the configuration.
  * @returns {ConfigData} The configuration information.
  */
-async function loadConfig(fileDirectory = './') {
+async function loadConfigDirectory(fileDirectory = './') {
   for (const filename of configFilenames) {
     try {
       await access(fileDirectory, constants.F_OK);
@@ -329,11 +329,12 @@ async function loadConfig(fileDirectory = './') {
 }
 
 export {
-  loadConfig,
+  loadConfigDirectory,
   loadJsConfigFile,
   loadJsonConfigFile,
   loadLegacyConfigFile,
   loadPackageJsonConfigFile,
   loadPackageJsonFile,
   loadYamlConfigFile,
+  PackageJson,
 };
