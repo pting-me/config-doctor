@@ -18,15 +18,6 @@
         "passWithNoTests": true
       }
     },
-    "test:silent": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/packages/eslint-doctor"],
-      "options": {
-        "jestConfig": "packages/eslint-doctor/jest.config.js",
-        "passWithNoTests": true,
-        "silent": true
-      }
-    },
     "build": {
       "executor": "@nrwl/node:package",
       "outputs": ["{options.outputPath}"],
@@ -36,25 +27,37 @@
         "packageJson": "packages/eslint-doctor/package.json",
         "main": "packages/eslint-doctor/src/index.ts",
         "assets": ["packages/eslint-doctor/*.md"]
-      }
+      },
+      "dependsOn": [
+        {
+          "target": "build",
+          "projects": "dependencies"
+        }
+      ]
     },
     "install": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "command": "npm uninstall -g eslint-doctor && npm install -g dist/packages/eslint-doctor"
-      }
-    },
-    "build:install": {
-      "executor": "@nrwl/workspace:run-commands",
-      "options": {
-        "command": "nx build eslint-doctor && nx install eslint-doctor"
-      }
+      },
+      "dependsOn": [
+        {
+          "target": "build",
+          "projects": "self"
+        }
+      ]
     },
     "publish": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "command": "npm publish dist/packages/eslint-doctor"
-      }
+      },
+      "dependsOn": [
+        {
+          "target": "build",
+          "projects": "self"
+        }
+      ]
     }
   },
   "tags": []
