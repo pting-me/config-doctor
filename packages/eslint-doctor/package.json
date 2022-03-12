@@ -1,6 +1,6 @@
 {
   "name": "eslint-doctor",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "bin": {
     "eslint-doctor": "src/index.js"
   },
@@ -22,5 +22,12 @@
   "bugs": {
     "url": "https://github.com/philting/config-doctor/issues"
   },
-  "homepage": "https://github.com/philting/config-doctor#readme"
+  "homepage": "https://github.com/philting/config-doctor#readme",
+  "dependencies": {
+    "debug": "^4.3.3",
+    "import-fresh": "^3.3.0",
+    "js-yaml": "^4.1.0",
+    "strip-json-comments": "^4.0.0",
+    "tslib": "^2.3.1"
+  }
 }
