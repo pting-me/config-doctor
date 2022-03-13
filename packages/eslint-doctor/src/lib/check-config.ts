@@ -1,3 +1,4 @@
+import { Linter } from 'eslint';
 import { gte, minVersion } from 'semver';
 import {
   loadConfigDirectory,
@@ -212,23 +213,10 @@ const checkTsResetExtension = (
   return issues;
 };
 
-/**
- * Main function to run all checks.
- * @param fileDirectory the directory to read config from
- * @returns {Promise<void>}
- */
-const checkConfig = async (fileDirectory = './') => {
-  console.log('\nESLint Doctor\n\n');
-
-  const packageJson = await loadPackageJsonFile(`${fileDirectory}package.json`);
-  const config =
-    packageJson.eslintConfig ?? (await loadConfigDirectory(fileDirectory));
-
-  // TODO: check overrides
-
+const checkConfigExtends = (config: Linter.Config<Linter.RulesRecord>, packageJson: PackageJson) => {
   // don't check 'extends' if it's undefined
-  if (!config?.extends) {
-    return;
+  if (!config.extends) {
+    return [];
   }
 
   const configExtends =
@@ -244,6 +232,24 @@ const checkConfig = async (fileDirectory = './') => {
   // Check: @typescript-eslint plugins should all have the same version
   // TODO: implement
   // TODO: add autofix
+
+  return issues;
+};
+
+/**
+ * Main function to run all checks.
+ * @param fileDirectory the directory to read config from
+ * @returns {Promise<void>}
+ */
+const checkConfig = async (fileDirectory = './') => {
+  console.log('\nESLint Doctor\n\n');
+
+  const packageJson = await loadPackageJsonFile(`${fileDirectory}package.json`);
+  const config =
+    packageJson.eslintConfig ?? (await loadConfigDirectory(fileDirectory));
+
+  // TODO: Parse overrides into array of configs, and then loop
+  const issues = checkConfigExtends(config, packageJson);
 
   issues.forEach((issue) => {
     console.log(issue);
