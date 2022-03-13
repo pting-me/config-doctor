@@ -16,7 +16,6 @@ import { constants } from 'fs';
 import { access, readFile, realpath } from 'fs/promises';
 import path from 'path';
 import importFresh from 'import-fresh';
-import stripComments from 'strip-json-comments';
 import debugOrig from 'debug';
 import { Linter } from 'eslint';
 import { PackageJson as BasePackageJson } from 'type-fest';
@@ -42,6 +41,13 @@ const configFilenames = [
   '.eslintrc',
   'package.json',
 ];
+
+async function importStripJsonComments() {
+  const { default: stripJsonComments } = await (eval(
+    'import("strip-json-comments")'
+  ) as Promise<typeof import('strip-json-comments')>);
+  return stripJsonComments;
+}
 
 /**
  * Check if a given string is a file path.
@@ -97,10 +103,11 @@ async function loadYamlConfigFile(filePath: string): Promise<Linter.Config> {
  */
 async function loadJsonConfigFile(filePath: string) {
   debug(`Loading JSON config file: ${filePath}`);
+  const stripJsonComments = await importStripJsonComments();
 
   try {
     return JSON.parse(
-      stripComments(await readFileWrapper(filePath))
+      stripJsonComments(await readFileWrapper(filePath))
     ) as Linter.Config;
   } catch (error) {
     const e = error as Error;
@@ -121,11 +128,12 @@ async function loadLegacyConfigFile(filePath: string) {
 
   // lazy load YAML to improve performance when not used
   const yaml = await import('js-yaml');
+  const stripJsonComments = await importStripJsonComments();
 
   try {
     return (
       (yaml.load(
-        stripComments(await readFileWrapper(filePath))
+        stripJsonComments(await readFileWrapper(filePath))
       ) as Linter.Config) || /* istanbul ignore next */ {}
     );
   } catch (error) {
@@ -142,7 +150,7 @@ async function loadLegacyConfigFile(filePath: string) {
  * @returns {ConfigData} The configuration object from the file.
  * @throws {Error} If the file cannot be read.
  */
- async function loadJsConfigFile(filePath: string) {
+async function loadJsConfigFile(filePath: string) {
   debug(`Loading JS config file: ${filePath}`);
 
   try {
@@ -178,9 +186,11 @@ async function loadLegacyConfigFile(filePath: string) {
  */
 async function loadPackageJsonFile(filePath: string) {
   debug(`Loading package.json file: ${filePath}`);
+  const stripJsonComments = await importStripJsonComments();
+
   try {
     const packageData = JSON.parse(
-      stripComments(await readFileWrapper(filePath))
+      stripJsonComments(await readFileWrapper(filePath))
     ) as PackageJson;
 
     return packageData;
