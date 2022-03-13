@@ -13,3 +13,6 @@ module.exports = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   coverageDirectory: '../../coverage/packages/eslint-doctor',
 };
+
+// This is necessary to enable importStripJsonComments
+process.env.NODE_OPTIONS = '--experimental-vm-modules';

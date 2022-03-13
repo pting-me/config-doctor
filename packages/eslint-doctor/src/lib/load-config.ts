@@ -41,10 +41,16 @@ const configFilenames = [
   'package.json',
 ];
 
+/**
+ * This is a temporary wrapper used because TypeScript will transpile inline
+ * imports to require.
+ * See: https://github.com/microsoft/TypeScript/issues/43329
+ * @returns result of `import('strip-json-comments')`
+ */
 async function importStripJsonComments() {
-  const { default: stripJsonComments } = await (eval(
-    'import("strip-json-comments")'
-  ) as Promise<typeof import('strip-json-comments')>);
+  const { default: stripJsonComments } = await (Function(
+    'return import("strip-json-comments")'
+  )() as Promise<typeof import('strip-json-comments')>);
   return stripJsonComments;
 }
 
