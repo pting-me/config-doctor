@@ -17,11 +17,10 @@ import { access, readFile, realpath } from 'fs/promises';
 import path from 'path';
 import importFresh from 'import-fresh';
 import debugOrig from 'debug';
-import { Linter } from 'eslint';
-import { PackageJson as BasePackageJson } from 'type-fest';
 
-// TODO: Add this type to type-fest
-//   https://github.com/sindresorhus/type-fest/issues/371
+import type { Linter } from 'eslint';
+import type { PackageJson as BasePackageJson } from 'type-fest';
+
 type PackageJson = BasePackageJson & {
   eslintConfig?: Linter.Config;
 };
